@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from django.contrib.auth import logout
 from .models import MyUser
 from rest_framework import mixins, authentication
-
+from django.db import IntegrityError
 
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -25,9 +25,21 @@ def UserLogout(request):
 class CreateStudent(APIView):
 
     def post(self,request):
-        user = MyUser.objects.create_user(email =request.data['user'],password=request.data['password'],
+        try:
+            user = MyUser.objects.create_user(email =request.data['user'],password=request.data['password'],
                                           address = request.data['address'],is_admin =request.data['is_admin'] == 'on')
-        return HttpResponse(user)
+            return Response({"user": user.user})
+        except Exception as e:
+            if 'UNIQUE constraint' in str(e):
+                message = "User Exist"
+                amended_args = tuple([f'{e.args[0]}\n{message}', *e.args[1:]])
+                e.args = amended_args
+                raise
+            else:
+                raise Exception("Server not responding")
+
+
+
 
 
 
