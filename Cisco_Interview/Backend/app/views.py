@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import logout
 from .models import MyUser
+from rest_framework import status
 from rest_framework import mixins, authentication
 from django.db import IntegrityError
 
@@ -31,12 +32,9 @@ class CreateStudent(APIView):
             return Response({"user": user.user})
         except Exception as e:
             if 'UNIQUE constraint' in str(e):
-                message = "User Exist"
-                amended_args = tuple([f'{e.args[0]}\n{message}', *e.args[1:]])
-                e.args = amended_args
-                raise
+                return Response("User Already exist", status=status.HTTP_400_BAD_REQUEST)
             else:
-                raise Exception("Server not responding")
+                return Response("Some error in server", status=status.HTTP_400_BAD_REQUEST)
 
 
 

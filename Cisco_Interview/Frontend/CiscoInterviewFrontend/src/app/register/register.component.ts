@@ -45,7 +45,7 @@ isLoggedIn: boolean = true;
 
     },
     (error:HttpErrorResponse) => {
-      this.toastrService.error("User already exist");
+      this.toastrService.error(error.error);
     })
     ;
 
